@@ -2,19 +2,14 @@
     require_once "validator.php";
     
     function creerWallet(string $nom, string $telephone, float $solde, int $code): bool {
-        if (!validerNom($nom))            return false;
-        if (!validerTelephone($telephone)) return false;
-        if (telephoneExiste($telephone))   return false;
-        if (!validerSolde($solde))         return false;
-        if (!validerCode($code))           return false;
-        if (codeExiste($code))             return false;
+        if (!validerNom($nom))return false;
+        if (!validerTelephone($telephone))return false;
+        if (telephoneExiste($telephone))return false;
+        if (!validerSolde($solde))return false;
+        if (!validerCode($code))return false;
+        if (codeExiste($code))return false;
     
-        $wallet = [
-            "client"    => $nom,
-            "telephone" => $telephone,
-            "solde"     => $solde,
-            "code"      => $code
-        ];
+        $wallet = ["client"=> $nom,"telephone" => $telephone,"solde"=> $solde,"code"=> $code];
         ajouterWallet($wallet);
         return true;
     }
@@ -37,8 +32,8 @@
         if (!telephoneExiste($telephone)) return false;
         if (!validerMontant($montant))    return false;
     
-        $index       = trouverWalletParTelephone($telephone);
-        $wallet      = obtenirWalletParIndex($index);
+        $index = trouverWalletParTelephone($telephone);
+        $wallet = obtenirWalletParIndex($index);
         $nouveauSolde = $wallet["solde"] + $montant;
     
         mettreAJourSolde($index, $nouveauSolde);
@@ -55,7 +50,7 @@
     
         if (!soldeDisponible($index, $montant, $frais)) return false;
     
-        $wallet       = obtenirWalletParIndex($index);
+        $wallet = obtenirWalletParIndex($index);
         $nouveauSolde = $wallet["solde"] - $montant - $frais;
     
         mettreAJourSolde($index, $nouveauSolde);
@@ -71,8 +66,8 @@
             return $toutes;
         }
     
-        $index     = trouverWalletParTelephone($telephone);
-        $filtrees  = [];
+        $index = trouverWalletParTelephone($telephone);
+        $filtrees = [];
     
         for ($i = 0; $i < count($toutes); $i++) {
             if ($toutes[$i]["indexClient"] == $index) {
