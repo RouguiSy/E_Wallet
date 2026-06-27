@@ -1,58 +1,48 @@
 <?php
-    $wallets = [
-        ["client" => "Rougui Sy", "telephone" => "773438165", "solde" => 2345, "code" => 2005],
-        ["client" => "fatou wane","telephone" => "773438165","solde" => 2345,"code" => 2005]
-    ];
-    
-    $transactions = [
-        ['montant' => 1000, 'type' => 'depot', 'indexClient' => 0],
-        ['montant' => -5000, 'type' => 'retrait', 'indexClient' => 0]
-    ];
-    
+    namespace EWallet\Repository;
+
+    $wallets = [];
+    $transactions = [];
+
     function ajouterWallet(array $wallet): void {
         global $wallets;
-        $wallets[] = $wallet;
+        array_push($wallets, $wallet);
     }
-    
+
     function trouverWalletParTelephone(string $telephone): int {
         global $wallets;
-        for ($index = 0; $index < count($wallets); $index++) {
-            if ($wallets[$index]["telephone"] == $telephone) {
-                return $index;
-            }
-        }
-        return -1;
+        $resultats = array_filter($wallets, function($w) use ($telephone) {
+            return $w["telephone"] === $telephone;
+        });
+        if (empty($resultats)) return -1;
+        return array_key_first($resultats);
     }
-    
+
     function trouverWalletParCode(int $code): int {
         global $wallets;
-        for ($index = 0; $index < count($wallets); $index++) {
-            if ($wallets[$index]["code"] == $code) {
-                return $index;
-            }
-        }
-        return -1;
+        $resultats = array_filter($wallets, function($w) use ($code) {
+            return $w["code"] === $code;
+        });
+        if (empty($resultats)) return -1;
+        return array_key_first($resultats);
     }
-    
+
     function mettreAJourSolde(int $index, float $nouveauSolde): void {
         global $wallets;
         $wallets[$index]["solde"] = $nouveauSolde;
     }
-    
+
     function ajouterTransaction(float $montant, string $type, int $indexClient): void {
         global $transactions;
-        $transactions[] = [
-            'montant'     => $montant,
-            'type'        => $type,
-            'indexClient' => $indexClient
-        ];
+        array_push($transactions, ['montant'=> $montant,'type'=> $type,'indexClient' => $indexClient
+        ]);
     }
-    
+
     function obtenirWalletParIndex(int $index): array {
         global $wallets;
         return $wallets[$index];
     }
-    
+
     function obtenirToutesLesTransactions(): array {
         global $transactions;
         return $transactions;
