@@ -1,67 +1,64 @@
 <?php
-    require_once "services.php";
+    namespace EWallet\Controller;
+
+    use function EWallet\Services\creerWallet;
+    use function EWallet\Services\faireDepot;
+    use function EWallet\Services\faireRetrait;
+    use function EWallet\Services\calculerFrais;
+    use function EWallet\Services\listerTransactions;
 
     function controller(string $choix): void {
-        if ($choix == "1") {
-            $nom       = readline("Nom du client : ");
-            $telephone = readline("Numéro de telephone : ");
-            $solde     = (float) readline("Solde initial : ");
-            $code      = (int) readline("Code secret : ");
+        match($choix) {
+            "1" => formulaireCreerWallet(),
+            "2" => formulaireDepot(),
+            "3" => formulaireRetrait(),
+            "4" => formulaireTransactions(),
+            "0" => print("Au revoir !\n"),
+            default => print("Choix invalide\n")
+        };
+    }
 
-            if (creerWallet($nom, $telephone, $solde, $code)) {
-                echo "Wallet créé avec succès !\n";
-            } else {
-                echo "erreur de numero ou de code.\n";
-            }
+    function formulaireCreerWallet(): void {
+        $nom       = readline("Nom du client : ");
+        $telephone = readline("Numéro de téléphone : ");
+        $solde     = (float) readline("Solde initial : ");
+        $code      = (int)   readline("Code secret : ");
 
-        } elseif ($choix == "2") {
-            $telephone = readline("Numero de telephone : ");
-            $montant   = (float) readline("Montant a deposer : ");
+        creerWallet($nom, $telephone, $solde, $code)? print("Wallet cree  !\n"): print("erreur telephone ou code\n");
+    }
 
-            if (faireDepot($telephone, $montant)) {
-                echo "Depot valide !\n";
-            } else {
-                echo "numero introuvable ou montant invalide.\n";
-            }
+    function formulaireDepot(): void {
+        $telephone = readline("Numero de telephone : ");
+        $montant   = (float) readline("Montant à déposer : ");
 
-        } elseif ($choix == "3") {
-            $telephone = readline("Numero de telephone : ");
-            $montant   = (float) readline("Montant a retirer : ");
-            $frais     = calculerFrais($montant);
+        faireDepot($telephone, $montant)? print("Depot de {$montant} fait\n"): print(" numero ou montant invalide.\n");
+    }
 
-            echo "Frais : {$frais} CFA\n";
+    function formulaireRetrait(): void {
+        $telephone = readline("Numero de telephone : ");
+        $montant   = (float) readline("Montant à retirer : ");
+        $frais     = calculerFrais($montant);
 
-            if (faireRetrait($telephone, $montant)) {
-                echo "Retrait valide.\n";
-            } else {
-                echo "solde insuffisant \n";
-            }
+        echo "Frais appliques : {$frais} \n";
 
-        } elseif ($choix == "4") {
-            $choixFiltre = readline("Voir toutes les transactions ? (o/n) : ");
+        faireRetrait($telephone, $montant)
+            ? print("Retrait de {$montant} effectue. Frais : {$frais} \n")
+            : print("solde insuffisant, numero  ou montant invalide.\n");
+    }
 
-            if ($choixFiltre == "n") {
-                $telephone    = readline("Numero de telephone : ");
-                $transactions = listerTransactions($telephone);
-            } else {
-                $transactions = listerTransactions();
-            }
+    function formulaireTransactions(): void {
+        $choixFiltre = readline("Filtrer par wallet ? (o/n) : ");
 
-            if (count($transactions) == 0) {
-                echo "Aucune transaction trouvee.\n";
-            } else {
-                echo "\n--- Historique des transactions ---\n";
-                for ($i = 0; $i < count($transactions); $i++) {
-                    $t = $transactions[$i];
-                    echo "Type : {$t['type']} | Montant : {$t['montant']} CFA\n";
-                }
-            }
+        $transactions = $choixFiltre === "o" ? listerTransactions(readline("Numero de telephone : ")): listerTransactions();
 
-        } elseif ($choix == "0") {
-            echo "Au revoir !\n";
-
-        } else {
-            echo "Choix invalide\n";
+        if (empty($transactions)) {
+            echo "Aucune transaction trouvee.\n";
+            return;
         }
+
+        echo "\n--- Historique des transactions ---\n";
+        array_walk($transactions, function($t) {
+            echo "Type : {$t['type']} | Montant : {$t['montant']} \n";
+        });
     }
 ?>
