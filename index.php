@@ -1,7 +1,6 @@
 <?php
     require_once "controller.php";
 
-    // --------------- Menu ---------------
     function afficherMenu(): void {
         echo "\n--------------Menu Distributeur----------------\n";
         echo "1 - Créer Wallet\n";
